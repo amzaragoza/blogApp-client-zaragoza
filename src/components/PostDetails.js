@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import UpdatePost from './UpdatePost';
 import UserContext from '../UserContext';
@@ -15,7 +15,9 @@ export default function PostDetails() {
     const [title,setTitle] = useState("");
     const [content,setContent] = useState("");
     const [author,setAuthor] = useState("");
+    const [createdOn,setCreatedOn] = useState("");
     const [comments,setComments] = useState([]);
+    const [newComment, setNewComment] = useState("");
 
     useEffect(() => {
         // fetch(`http://localhost:4000/posts/getPost/${id}`)
@@ -28,6 +30,7 @@ export default function PostDetails() {
                 setTitle(data.title);
                 setContent(data.content);
                 setAuthor(data.author || "");
+                setCreatedOn(new Date(data.createdOn).toLocaleString());
                 setComments(data.comments);
             }
         })
@@ -42,6 +45,7 @@ export default function PostDetails() {
             setTitle(data.title);
             setContent(data.content);
             setAuthor(data.author);
+            setCreatedOn(new Date(data.createdOn).toLocaleString());
             setComments(data.comments);
         });
     };
@@ -73,6 +77,39 @@ export default function PostDetails() {
         })
     }
 
+    const addComment = () => {
+        if (!newComment.trim()) {
+            notyf.error("Comment cannot be empty");
+            return;
+        }
+
+        fetch(`https://blogapp-server-zaragoza.onrender.com/posts/addComment/${id}`, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({
+                comments: [{ comment: newComment }]
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.message === "comment added successfully") {
+                    notyf.success("Comment added successfully");
+                    setNewComment("");
+                    fetchData();
+                } else {
+                    notyf.error(data.error || "Error adding comment");
+                }
+            })
+            .catch(error => {
+                console.error("Error adding comment:", error);
+                notyf.error("Failed to add comment. Please try again later.");
+            });
+    };
+
+
     return(
         <Container>
         	<Row className="d-flex justify-content-center mt-5">
@@ -83,6 +120,8 @@ export default function PostDetails() {
                         <Card.Text>{content}</Card.Text>
                         <Card.Subtitle>Author:</Card.Subtitle>
                         <Card.Text>{author}</Card.Text>
+                        <Card.Subtitle>Created On:</Card.Subtitle>
+                        <Card.Text>{createdOn}</Card.Text>
                         {
                             user.id ? (
                                 <>
@@ -107,6 +146,27 @@ export default function PostDetails() {
                     </Card.Body>
         	    </Col>
         	</Row>
+            {user.id && (
+                <Row className="d-flex justify-content-center my-3">
+                    <Col md={8}>
+                        <Form.Group>
+                            <Form.Control
+                                type="text"
+                                placeholder="Write a comment..."
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Button
+                            className="mt-2"
+                            variant="success"
+                            onClick={addComment}
+                        >
+                            Add Comment
+                        </Button>
+                    </Col>
+                </Row>
+            )}
             {user.id && typeof author === "string" && author.includes(`(${user.id})`) ? ( // Compare the logged-in user's ID with the post's author ID
                 <div className="text-center my-3">
                     <UpdatePost

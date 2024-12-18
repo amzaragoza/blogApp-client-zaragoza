@@ -55,7 +55,7 @@ export default function UpdatePost({post, fetchData}){
     
     return (
         <>
-            <Button variant = "primary" className="me-1" size = "sm" onClick={handleAddModalShow}>Update</Button>
+            <Button variant = "primary" className="m-1" size = "sm" onClick={handleAddModalShow}>Update</Button>
 
             {/*Update Modal*/}
 

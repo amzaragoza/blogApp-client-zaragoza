@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { Row, Col, Table, Button } from 'react-bootstrap';
+import { Row, Col, Table, Button, Modal, Form } from 'react-bootstrap';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Notyf } from 'notyf';
 import UpdatePost from './UpdatePost';
@@ -11,6 +11,9 @@ export default function AdminDashboard() {
     const notyf = new Notyf();
     const navigate = useNavigate();
 	const [posts, setPosts] = useState([]);
+	const [showAddCommentModal, setShowAddCommentModal] = useState(false);
+	const [newComment, setNewComment] = useState('');
+	const [selectedPostId, setSelectedPostId] = useState(null);
 
 	const fetchData = () => {
 		// fetch('http://localhost:4000/posts/getPosts', {
@@ -84,6 +87,43 @@ export default function AdminDashboard() {
 	    })
 	}
 
+	const addComment = () => {
+	    if (!newComment.trim()) {
+	        notyf.error("Comment cannot be empty");
+	        return;
+	    }
+
+	    fetch(`https://blogapp-server-zaragoza.onrender.com/posts/addComment/${selectedPostId}`, {
+	        method: 'POST',
+	        headers: {
+	            "Content-Type": "application/json",
+	            'Authorization': `Bearer ${localStorage.getItem("token")}`
+	        },
+	        body: JSON.stringify({
+	            comments: [{ comment: newComment }]
+	        })
+	    })
+	        .then(res => res.json())
+	        .then(data => {
+	            if (data.message === "comment added successfully") {
+	                notyf.success("Comment added successfully");
+	                setNewComment("");
+	                fetchData();
+	                setShowAddCommentModal(false);
+	            } else {
+	                notyf.error(data.error || "Error adding comment");
+	            }
+	        })
+	        .catch(error => {
+	            console.error("Error adding comment:", error);
+	            notyf.error("Failed to add comment. Please try again later.");
+	        });
+	};
+	const openAddCommentModal = (postId) => {
+		setSelectedPostId(postId);
+		setShowAddCommentModal(true);
+	};
+
 	return(
 		(user.id !== null && user.isAdmin === true)
 		?
@@ -97,11 +137,12 @@ export default function AdminDashboard() {
 				<Row>
 					<Col className="col-12">
 						<Table striped bordered hover variant="dark">
-					      <thead>
+					      <thead className="text-center">
 					        <tr>
 					          <th>Title</th>
 					          <th>Content</th>
 					          <th>Author</th>
+					          <th>Created On</th>
 					          <th>Comments</th>
 					          <th>Actions</th>
 					        </tr>
@@ -116,6 +157,7 @@ export default function AdminDashboard() {
 						      					<td>{post.title}</td>
 										        <td>{post.content}</td>
 										        <td>{post.author}</td>
+										        <td>{post.createdOn}</td>
 										        <td>
 								                    {Array.isArray(post.comments) && post.comments.length > 0
 								                      ? post.comments.map((comment, index) => (
@@ -123,7 +165,7 @@ export default function AdminDashboard() {
 								                              <span>{comment.comment}</span> {/* Render comment text */}
 								                              {/* Add the delete button for each comment */}
 								                              <button 
-								                                  className="btn btn-danger btn-sm ms-2" 
+								                                  className="btn btn-danger btn-sm ms-2 my-1" 
 								                                  onClick={() => deleteComment(post._id, comment._id)} // Properly reference comment._id
 								                              >
 								                                  Remove Comment
@@ -132,17 +174,26 @@ export default function AdminDashboard() {
 								                      ))
 								                      : "No comments"}
 								                </td>
-										        <td className="text-center">
-            										{/*<button className="btn btn-danger btn-sm" onClick={() => deleteComment(post._id, comment._id)}>Delete</button>*/}
-            										{/*<UpdatePost
-            										    post={{ _id: id, title, content }}
-            										    fetchData={fetchData}
-            										/>*/}
-										        	{user.id && typeof post.author === "string" && post.author.includes(`(${user.id})`) ? (
-	                                                    <UpdatePost post = {post} fetchData = {fetchData}/>
-	                                                ) : null}
-            										{/*<UpdatePost post = {post} fetchData = {fetchData}/>*/}
-            										<button className="btn btn-danger btn-sm" onClick={() => deletePost(post._id)}>Delete</button>
+										        <td className="text-center align-middle">
+            										<div className="d-flex flex-column align-items-center">
+        										        <Button
+        										            variant="info"
+        										            className="btn-sm mb-1 px-1" // Adjust spacing between buttons
+        										            onClick={() => openAddCommentModal(post._id)}
+        										        >
+        										        	Comment
+        										        </Button>
+        										        {user.id && typeof post.author === "string" && post.author.includes(`(${user.id})`) ? (
+        										            <UpdatePost post={post} fetchData={fetchData} />
+        										        ) : null}
+        										        <Button
+        										            variant="danger"
+        										            className="btn-sm my-1" // Adjust spacing between buttons
+        										            onClick={() => deletePost(post._id)}
+        										        >
+        										            Delete
+        										        </Button>
+        										    </div>
 										        </td>
 									        </tr>
 					      				)
@@ -154,6 +205,35 @@ export default function AdminDashboard() {
 					    </Table>
 				    </Col>
 			    </Row>
+
+			    {/* Add Comment Modal */}
+    			<Modal show={showAddCommentModal} onHide={() => setShowAddCommentModal(false)}>
+    				<Modal.Header closeButton>
+    					<Modal.Title>Add Comment</Modal.Title>
+    				</Modal.Header>
+    				<Modal.Body>
+    					<Form>
+    						<Form.Group>
+    							<Form.Label>Comment</Form.Label>
+    							<Form.Control
+    								as="textarea"
+    								rows={3}
+    								placeholder="Enter your comment"
+    								value={newComment}
+    								onChange={(e) => setNewComment(e.target.value)}
+    							/>
+    						</Form.Group>
+    					</Form>
+    				</Modal.Body>
+    				<Modal.Footer>
+    					<Button variant="secondary" onClick={() => setShowAddCommentModal(false)}>
+    						Close
+    					</Button>
+    					<Button variant="primary" onClick={addComment}>
+    						Add Comment
+    					</Button>
+    				</Modal.Footer>
+    			</Modal>
 		    </>
 		:
 			<Navigate to="/login" />
