@@ -10,7 +10,8 @@ export default function PostCard({post}) {
     const [posts, setPosts] = useState([]);
 
     const fetchData = () => {
-        fetch('http://localhost:4000/posts/getPosts', {
+        // fetch('http://localhost:4000/posts/getPosts', {
+        fetch('https://blogapp-server-zaragoza.onrender.com/posts/getPosts', {
             headers: {
                 'Authorization': `Bearer ${ localStorage.getItem('token') }`
             }

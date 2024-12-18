@@ -18,7 +18,8 @@ export default function UpdatePost({post, fetchData}){
     const updatePost = (event, postId) => {
 
         event.preventDefault();
-        fetch(`http://localhost:4000/posts/updatePost/${postId}`,{
+        // fetch(`http://localhost:4000/posts/updatePost/${postId}`,{
+        fetch(`https://blogapp-server-zaragoza.onrender.com/posts/updatePost/${postId}`,{
 	        method: 'PATCH',
 	        headers: {
 	            "Content-Type": "application/json",

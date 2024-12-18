@@ -13,7 +13,8 @@ export default function AdminDashboard() {
 	const [posts, setPosts] = useState([]);
 
 	const fetchData = () => {
-		fetch('http://localhost:4000/posts/getPosts', {
+		// fetch('http://localhost:4000/posts/getPosts', {
+		fetch('https://blogapp-server-zaragoza.onrender.com/posts/getPosts', {
 			headers: {
 				'Authorization': `Bearer ${localStorage.getItem('token')}`
 			}
@@ -33,7 +34,8 @@ export default function AdminDashboard() {
 	}, [user])
 
 	function deleteComment(postId, commentId) {
-	  	fetch(`http://localhost:4000/posts/removeComments/${postId}/${commentId}`, {
+	  	// fetch(`http://localhost:4000/posts/removeComments/${postId}/${commentId}`, {
+	  	fetch(`https://blogapp-server-zaragoza.onrender.com/posts/removeComments/${postId}/${commentId}`, {
 	    	method: 'DELETE',
 	    	headers: {
 	      		"Content-Type": "application/json",
@@ -57,7 +59,8 @@ export default function AdminDashboard() {
 
 	function deletePost(postId) {
 
-	        fetch(`http://localhost:4000/posts/deletePost/${postId}`,{
+	        // fetch(`http://localhost:4000/posts/deletePost/${postId}`,{
+	        fetch(`https://blogapp-server-zaragoza.onrender.com/posts/deletePost/${postId}`,{
 
 	        method: 'DELETE',
 	        headers: {

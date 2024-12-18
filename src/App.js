@@ -32,7 +32,8 @@ function App() {
     const fetchUserDetails = async () => {
       if (localStorage.getItem('token')) {
           try {
-              const response = await fetch('http://localhost:4000/users/details', {
+              // const response = await fetch('http://localhost:4000/users/details', {
+              const response = await fetch('https://blogapp-server-zaragoza.onrender.com/users/details', {
                   headers: {
                       Authorization: `Bearer ${localStorage.getItem('token')}`
                   }

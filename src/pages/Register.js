@@ -21,7 +21,8 @@ export default function Register() {
 		// Prevents page redirection via form submission
 		e.preventDefault();
 
-		fetch('http://localhost:4000/users/register',{
+		// fetch('http://localhost:4000/users/register',{
+		fetch('https://blogapp-server-zaragoza.onrender.com/users/register',{
 
             method: 'POST',
             headers: {

@@ -19,7 +19,8 @@ export default function AddPost(){
         let token = localStorage.getItem('token');
         console.log(token);
 
-        fetch('http://localhost:4000/posts/addPost',{
+        // fetch('http://localhost:4000/posts/addPost',{
+        fetch('https://blogapp-server-zaragoza.onrender.com/posts/addPost',{
 
             method: 'POST',
             headers: {

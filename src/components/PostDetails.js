@@ -18,7 +18,8 @@ export default function PostDetails() {
     const [comments,setComments] = useState([]);
 
     useEffect(() => {
-        fetch(`http://localhost:4000/posts/getPost/${id}`)
+        // fetch(`http://localhost:4000/posts/getPost/${id}`)
+        fetch(`https://blogapp-server-zaragoza.onrender.com/posts/getPost/${id}`)
         .then(response => response.json())
         .then(data => {
             if(data.error === "Post not found" || data.length === 0) {
@@ -34,7 +35,8 @@ export default function PostDetails() {
 
     // Refetch data function
     const fetchData = () => {
-        fetch(`http://localhost:4000/posts/getPost/${id}`)
+        // fetch(`http://localhost:4000/posts/getPost/${id}`)
+        fetch(`https://blogapp-server-zaragoza.onrender.com/posts/getPost/${id}`)
         .then(response => response.json())
         .then(data => {
             setTitle(data.title);
@@ -46,7 +48,8 @@ export default function PostDetails() {
 
     function deletePost(postId) {
 
-            fetch(`http://localhost:4000/posts/deletePost/${postId}`,{
+            // fetch(`http://localhost:4000/posts/deletePost/${postId}`,{
+            fetch(`https://blogapp-server-zaragoza.onrender.com/posts/deletePost/${postId}`,{
 
             method: 'DELETE',
             headers: {
